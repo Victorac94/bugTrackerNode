@@ -34,6 +34,12 @@ router.post('/new', [
 ],
   async (req, res) => {
     try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(422).json(errors.array());
+      }
+
       // Hash password
       req.body.password = bcrypt.hashSync(req.body.password, 10)
 
@@ -71,6 +77,12 @@ router.post('/login', [
 ],
   async (req, res) => {
     try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(422).json(errors.array());
+      }
+
       const user = new User();
 
       // Search user in DB
@@ -123,6 +135,12 @@ router.put('/:userId/edit', [
   check('password', 'Password must be between 6 and 20 characters').exists().isLength({ min: 6, max: 20 })
 ], async (req, res) => {
   try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).json(errors.array());
+    }
+
     const user = new User();
 
     const result = await user.updateDetails(req.decodedToken.userId, req.body).exec();
@@ -138,16 +156,10 @@ router.put('/:userId/edit', [
 // http://localhost:3000/users/:userId/delete
 router.delete('/:userId/delete', [isUserAuthenticated, isUserAuthorized], async (req, res) => {
   try {
-    // Check if user is requesting to delete it's own profile
-    if (req.params['userId'] === req.decodedToken.userId) {
-      const user = new User();
+    const user = new User();
 
-      const result = await user.deleteById(req.decodedToken.userId).exec();
-      res.status(200).json(result);
-
-    } else {
-      res.status(401).json({ error: 'User credentials do not match' });
-    }
+    const result = await user.deleteById(req.decodedToken.userId).exec();
+    res.status(200).json(result);
 
   } catch (err) {
     res.status(500).json({ error: err });
