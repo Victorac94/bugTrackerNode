@@ -10,12 +10,6 @@ router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-/* Login page */
-// https://localhost/login
-router.get('/login', (req, res) => {
-  res.send('Login page');
-});
-
 
 
 module.exports = router;

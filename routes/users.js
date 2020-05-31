@@ -7,6 +7,7 @@ const { check, validationResult } = require('express-validator');
 
 const User = require('../models/user.js');
 const isUserAuthenticated = require('../middlewares/isUserAuthenticated');
+const isUserAuthorized = require('../middlewares/IsUserAuthorized');
 
 /* GET users listing. */
 // http://localhost:3000/users
@@ -115,22 +116,17 @@ router.get('/:userId', async (req, res) => {
 // http://localhost:3000/users/:userId/edit
 router.put('/:userId/edit', [
   isUserAuthenticated,
+  isUserAuthorized,
   check('name', 'Name must be between 3 and 30 characters and only contain alphanumeric values or low dash').exists().custom(value => {
     return /^[a-zA-Z0-9_]{3,30}$/.test(value);
   }),
   check('password', 'Password must be between 6 and 20 characters').exists().isLength({ min: 6, max: 20 })
 ], async (req, res) => {
   try {
-    // Check if user is requesting to update it's own profile
-    if (req.params['userId'] === req.decodedToken.userId) {
-      const user = new User();
+    const user = new User();
 
-      const result = await user.updateDetails(req.decodedToken.userId, req.body).exec();
-      res.status(200).json(result);
-
-    } else {
-      res.status(401).json({ error: 'User credentials do not match' });
-    }
+    const result = await user.updateDetails(req.decodedToken.userId, req.body).exec();
+    res.status(200).json(result);
 
   } catch (err) {
     console.log(err);
@@ -140,7 +136,7 @@ router.put('/:userId/edit', [
 
 /* Delete user */
 // http://localhost:3000/users/:userId/delete
-router.delete('/:userId/delete', isUserAuthenticated, async (req, res) => {
+router.delete('/:userId/delete', [isUserAuthenticated, isUserAuthorized], async (req, res) => {
   try {
     // Check if user is requesting to delete it's own profile
     if (req.params['userId'] === req.decodedToken.userId) {
