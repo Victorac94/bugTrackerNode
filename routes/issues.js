@@ -9,9 +9,33 @@ const isUserAuthenticated = require('../middlewares/isUserAuthenticated');
 const isUserAuthorized = require('../middlewares/IsUserAuthorized');
 
 /* Get latest issues */
-// http://localhost:3000/issues
-router.get('/', (req, res) => {
-    res.send('Showing all issues');
+// http://localhost:3000/issues?search=<id|summary>
+router.get('/', async (req, res) => {
+    try {
+        const issue = new Issue();
+        let foundIssues;
+
+        // Trim search input and check if it is a valid search
+        req.query.search = req.query.search.trim();
+
+        if (req.query.search === '') {
+            res.status(422).json('Search query is invalid.');
+        }
+
+        // If search is a string
+        if (isNaN(req.query.search)) {
+            foundIssues = await issue.searchIssueBySummary(req.query.search);
+
+            // If it's the issue custom id (number)
+        } else {
+            foundIssues = await issue.searchIssueByCustomId(req.query.search);
+        }
+
+        res.status(200).json(foundIssues);
+
+    } catch (err) {
+        res.status(500).json({ error: err });
+    }
 })
 
 /* Add new issue */
