@@ -23,6 +23,14 @@ issueSchema.methods.getIssueById = function (issueId) {
     return this.model('Issue').findById(issueId).populate('project');
 }
 
+issueSchema.methods.searchIssueByCustomId = function (issueId) {
+    return this.model('Issue').find({ id: issueId });
+}
+
+issueSchema.methods.searchIssueBySummary = function (summary) {
+    return this.model('Issue').find({ summary: { $regex: summary, $options: 'i' } });
+}
+
 issueSchema.methods.updateIssue = function (issueId, data) {
     return this.model('Issue').updateOne({ _id: issueId }, { ...data });
 }
