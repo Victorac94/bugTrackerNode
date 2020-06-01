@@ -1,5 +1,6 @@
 const Issue = require('../models/issue');
 const Project = require('../models/project');
+const Comment = require('../models/comment');
 
 async function isUserAuthorized(req, res, next) {
     try {
@@ -43,6 +44,22 @@ async function isUserAuthorized(req, res, next) {
                 next();
 
                 // User is not authorized to modify project
+            } else {
+                res.status(401).json('Access unauthorized.');
+            }
+
+            // For modifying comments
+        } else if (req.params['commentId']) {
+            const comment = new Comment();
+
+            const foundComment = await comment.getCommentById(req.params['commentId']);
+
+            // User can modify comment
+            if (foundComment.author.toString() === req.decodedToken.userId) {
+                console.log('Can update comment');
+                next()
+
+                // User is not authorized to modify comment
             } else {
                 res.status(401).json('Access unauthorized.');
             }

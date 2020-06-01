@@ -20,7 +20,7 @@ const issueSchema = new mongoose.Schema({
 });
 
 issueSchema.methods.getIssueById = function (issueId) {
-    return this.model('Issue').findById(issueId).populate('project informer');
+    return this.model('Issue').findById(issueId).populate('project');
 }
 
 issueSchema.methods.updateIssue = function (issueId, data) {
