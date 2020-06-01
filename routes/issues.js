@@ -4,6 +4,7 @@ const moment = require('moment');
 const { check, validationResult } = require('express-validator');
 
 const Issue = require('../models/issue');
+const Project = require('../models/project');
 const isUserAuthenticated = require('../middlewares/isUserAuthenticated');
 const isUserAuthorized = require('../middlewares/IsUserAuthorized');
 
@@ -23,7 +24,7 @@ router.post('/new', [
     check('priority', 'Priority value is not valid').isAlpha(),
     check('state', 'State value is not valid').isAlpha(),
     check('severity', 'Severity value is not valid').isAlpha(),
-    check('summary', 'Summary value must be present and can only contain alphabetic and or numeric values').custom(value => /^[a-zA-Z0-9_]{3, 30}$/.test(value)),
+    check('summary', 'Summary value must be present and can only contain alphabetic and or numeric values').custom(value => /^[a-zA-Z0-9_ ]{3, 30}$/.test(value)),
     check('description', 'Description must not exceed 5000 characters').isLength({ max: 5000 }).exists({ checkNull: true, checkFalsy: true }),
     check('steps_to_reproduce', 'Steps to reproduce must not exceed 2000 characters').isLength({ max: 2000 }),
     check('product_version', 'Product version must not exceed 50 characters').isLength({ max: 50 }),
@@ -38,10 +39,12 @@ router.post('/new', [
         }
 
         const issue = new Issue({ ...req.body });
+        const project = new Project();
 
         const newIssue = await issue.save();
+        const newProjectIssue = await project.addIssue(req.body.project, newIssue._id);
 
-        res.status(200).json(newIssue);
+        res.status(200).json({ issue: newIssue, project: newProjectIssue });
 
     } catch (err) {
         res.status(500).json({ error: err });
@@ -52,11 +55,11 @@ router.post('/new', [
 // http:localhost:3000/issues/project/:projectId
 router.get('/project/:projectId', async (req, res) => {
     try {
-        const issue = new Issue();
+        const project = new Project();
 
-        const foundIssues = await issue.getProjectIssues(req.params['projectId']);
+        const projectIssues = await project.getProjectIssues(req.params['projectId']);
 
-        res.status(200).json(foundIssues);
+        res.status(200).json(projectIssues);
 
     } catch (err) {
         res.status(500).json({ error: err });
@@ -73,7 +76,7 @@ router.put('/:issueId/edit', [
     check('priority', 'Priority value is not valid').isAlpha(),
     check('state', 'State value is not valid').isAlpha(),
     check('severity', 'Severity value is not valid').isAlpha(),
-    check('summary', 'Summary value must be present and can only contain alphabetic and or numeric values').matches(/^[a-zA-Z0-9_]{3, 30}$/).exists({ checkNull: true, checkFalsy: true }),
+    check('summary', 'Summary value must be present and can only contain alphabetic and or numeric values').matches(/^[a-zA-Z0-9_ ]{3, 30}$/).exists({ checkNull: true, checkFalsy: true }),
     check('description', 'Description must not exceed 5000 characters').isLength({ max: 5000 }).exists({ checkNull: true, checkFalsy: true }),
     check('steps_to_reproduce', 'Steps to reproduce must not exceed 2000 characters').isLength({ max: 2000 }),
     check('product_version', 'Product version must not exceed 50 characters').isLength({ max: 50 }),

@@ -3,8 +3,8 @@ const moment = require('moment');
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const issueSchema = new mongoose.Schema({
-    informer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    project: { type: String, required: true },
+    informer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
     category: String,
     creation_date: { type: Number, default: moment().unix() },
     modification_date: { type: Number, default: null },
@@ -19,12 +19,8 @@ const issueSchema = new mongoose.Schema({
     tags: String,
 });
 
-issueSchema.methods.getProjectIssues = function (projectId) {
-    return this.model('Issue').find({ project: projectId });
-}
-
 issueSchema.methods.getIssueById = function (issueId) {
-    return this.model('Issue').findById(issueId);
+    return this.model('Issue').findById(issueId).populate('project informer');
 }
 
 issueSchema.methods.updateIssue = function (issueId, data) {

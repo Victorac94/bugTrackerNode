@@ -1,4 +1,5 @@
 const Issue = require('../models/issue');
+const Project = require('../models/project');
 
 async function isUserAuthorized(req, res, next) {
     try {
@@ -26,6 +27,22 @@ async function isUserAuthorized(req, res, next) {
                 next();
 
                 // User is not authorized
+            } else {
+                res.status(401).json('Access unauthorized.');
+            }
+
+            // For modifying projects
+        } else if (req.params['projectId']) {
+            const project = new Project();
+
+            const foundProject = await project.getProjectById(req.params['projectId']);
+
+            // User can modify project
+            if (foundProject.creator.toString() === req.decodedToken.userId) {
+                console.log('Can update project');
+                next();
+
+                // User is not authorized to modify project
             } else {
                 res.status(401).json('Access unauthorized.');
             }
