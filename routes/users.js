@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
 // http://localhost:3000/users/new
 router.post('/new', [
   check('name', 'Name must be between 3 and 30 characters and only contain alphanumeric values or low dash').exists().custom(value => {
-    return /^[a-zA-Z0-9_]{3,30}$/.test(value);
+    return /^[a-zA-Z0-9_ ]{3,30}$/.test(value);
   }),
   check('password', 'Password must be between 6 and 20 characters').exists().isLength({ min: 6, max: 20 })
 ],
@@ -65,7 +65,7 @@ router.post('/new', [
 // http://localhost:3000/users/login
 router.post('/login', [
   check('name', 'Name must be between 3 and 30 characters and only contain alphanumeric values or low dash').exists().custom(value => {
-    return /^[a-zA-Z0-9_]{3,30}$/.test(value);
+    return /^[a-zA-Z0-9_ ]{3,30}$/.test(value);
   }),
   check('password', 'Password must be between 6 and 20 characters').exists().isLength({ min: 6, max: 20 })
 ],
@@ -118,7 +118,7 @@ router.put('/:userId/edit', [
   isUserAuthenticated,
   isUserAuthorized,
   check('name', 'Name must be between 3 and 30 characters and only contain alphanumeric values or low dash').exists().custom(value => {
-    return /^[a-zA-Z0-9_]{3,30}$/.test(value);
+    return /^[a-zA-Z0-9_ ]{3,30}$/.test(value);
   }),
   check('password', 'Password must be between 6 and 20 characters').exists().isLength({ min: 6, max: 20 })
 ], async (req, res) => {
