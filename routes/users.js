@@ -30,6 +30,7 @@ router.post('/new', [
   check('name', 'Name must be between 3 and 30 characters and only contain alphanumeric values or low dash').exists().custom(value => {
     return /^[a-zA-Z0-9_ ]{3,30}$/.test(value);
   }),
+  check('email', 'Email format is not correct').isEmail().exists(),
   check('password', 'Password must be between 6 and 20 characters').exists().isLength({ min: 6, max: 20 })
 ],
   async (req, res) => {
@@ -40,11 +41,20 @@ router.post('/new', [
         return res.status(422).json(errors.array());
       }
 
+      // Check if the email already exists in DB
+      const checkUser = new User();
+
+      const isUserAlreadyRegistered = await checkUser.getByEmail(req.body.email);
+
+      if (isUserAlreadyRegistered) {
+        return res.status(422).json({ error: 'That email is already registered.' });
+      }
+
       // Hash password
       req.body.password = bcrypt.hashSync(req.body.password, 10)
 
       // Create and save to DB the new user
-      const user = new User({ name: req.body.name, picture: req.body.picture, password: req.body.password });
+      const user = new User({ name: req.body.name, email: req.body.email, picture: req.body.picture, password: req.body.password });
       const newUser = await user.save();
 
       // Create user token with expiry date of authentication
@@ -54,7 +64,7 @@ router.post('/new', [
       }, process.env.SECRET_KEY);
 
       // Send back user token and user name
-      res.status(200).json({ 'user-token': userToken, user: { name: newUser.name, picture: newUser.picture, id: newUser._id } });
+      res.status(200).json({ 'user-token': userToken, user: { name: newUser.name, email: newUser.email, picture: newUser.picture, id: newUser._id } });
 
     } catch (err) {
       console.log(err);
@@ -73,6 +83,7 @@ router.post('/login', [
   check('name', 'Name must be between 3 and 30 characters and only contain alphanumeric values or low dash').exists().custom(value => {
     return /^[a-zA-Z0-9_ ]{3,30}$/.test(value);
   }),
+  check('email', 'Email format is not correct').isEmail().exists(),
   check('password', 'Password must be between 6 and 20 characters').exists().isLength({ min: 6, max: 20 })
 ],
   async (req, res) => {
@@ -86,7 +97,11 @@ router.post('/login', [
       const user = new User();
 
       // Search user in DB
-      const foundUser = await user.getByName(req.body.name).exec();
+      const foundUser = await user.getByEmail(req.body.email).exec();
+
+      if (!foundUser) {
+        return res.status(422).json({ error: 'Email does not exist.' });
+      }
 
       // If password and hashed password match, create user token with expiry date
       if (bcrypt.compareSync(req.body.password, foundUser.password)) {

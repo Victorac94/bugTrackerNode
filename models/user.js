@@ -3,10 +3,14 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
+        required: true,
+        match: /^[a-zA-Z0-9_]{3,30}$/
+    },
+    email: {
+        type: String,
         unique: true,
         required: true,
-        dropDups: true,
-        match: /^[a-zA-Z0-9_]{3,30}$/
+        dropDups: true
     },
     picture: {
         type: String,
@@ -24,8 +28,8 @@ userSchema.methods.getAll = function () {
 }
 
 // Get user by it's name
-userSchema.methods.getByName = function (name) {
-    return this.model('User').where({ name: name }).findOne();
+userSchema.methods.getByEmail = function (email) {
+    return this.model('User').where({ email: email }).findOne();
 }
 
 // Get user details
