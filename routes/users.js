@@ -30,7 +30,9 @@ router.post('/new', [
   check('name', 'Name must be between 3 and 30 characters and only contain alphanumeric values or low dash').exists().custom(value => {
     return /^[a-zA-Z0-9_ ]{3,30}$/.test(value);
   }),
-  check('email', 'Email format is not correct').isEmail().exists(),
+  check('email', 'Email format is not correct').custom(value => {
+    return /^\w+[\w-\.]*\@\w+((-\w+)|(\w*))\.[a-z]{2,3}$/.test(value);
+  }).exists(),
   check('password', 'Password must be between 6 and 20 characters').exists().isLength({ min: 6, max: 20 })
 ],
   async (req, res) => {
@@ -83,7 +85,9 @@ router.post('/login', [
   check('name', 'Name must be between 3 and 30 characters and only contain alphanumeric values or low dash').exists().custom(value => {
     return /^[a-zA-Z0-9_ ]{3,30}$/.test(value);
   }),
-  check('email', 'Email format is not correct').isEmail().exists(),
+  check('email', 'Email format is not correct').custom(value => {
+    return /^\w+[\w-\.]*\@\w+((-\w+)|(\w*))\.[a-z]{2,3}$/.test(value);
+  }).exists(),
   check('password', 'Password must be between 6 and 20 characters').exists().isLength({ min: 6, max: 20 })
 ],
   async (req, res) => {
