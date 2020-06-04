@@ -18,6 +18,10 @@ commentSchema.methods.getCommentById = function (commentId) {
     return this.model('Comment').findById(commentId);
 }
 
+commentSchema.methods.getCommentByAuthor = function (authorId) {
+    return this.model('Comment').find({ author: authorId }).populate('author issue');
+}
+
 commentSchema.methods.editComment = function (commentId, data) {
     return this.model('Comment').updateOne({ _id: commentId }, { ...data });
 }

@@ -6,6 +6,8 @@ const bcrypt = require('bcryptjs');
 const { check, validationResult } = require('express-validator');
 
 const User = require('../models/user.js');
+const Issue = require('../models/issue.js');
+const Comment = require('../models/comment.js');
 const isUserAuthenticated = require('../middlewares/isUserAuthenticated');
 const isUserAuthorized = require('../middlewares/IsUserAuthorized');
 
@@ -82,9 +84,6 @@ router.post('/new', [
 /* Handle user login */
 // http://localhost:3000/users/login
 router.post('/login', [
-  check('name', 'Name must be between 3 and 30 characters and only contain alphanumeric values or low dash').exists().custom(value => {
-    return /^[a-zA-Z0-9_ ]{3,30}$/.test(value);
-  }),
   check('email', 'Email format is not correct').custom(value => {
     return /^\w+[\w-\.]*\@\w+((-\w+)|(\w*))\.[a-z]{2,3}$/.test(value);
   }).exists(),
@@ -104,7 +103,7 @@ router.post('/login', [
       const foundUser = await user.getByEmail(req.body.email).exec();
 
       if (!foundUser) {
-        return res.status(422).json({ error: 'Email does not exist.' });
+        return res.status(422).json({ error: 'Email or password is incorrect' });
       }
 
       // If password and hashed password match, create user token with expiry date
@@ -119,7 +118,7 @@ router.post('/login', [
 
         // If do not match, return error
       } else {
-        res.status(422).json('Username or password do not match');
+        res.status(422).json('Email or password is incorrect');
       }
 
     } catch (err) {
@@ -133,8 +132,13 @@ router.post('/login', [
 router.get('/:userId', async (req, res) => {
   try {
     const user = new User();
+    // const issue = new Issue();
+    // const comment = new Comment();
 
     const foundUser = await user.getById(req.params.userId).exec();
+    // const foundIssues = await issue.getIssueById(req.params.userId).exec();
+    // const foundComments = await comment.getCommentByAuthor(req.params.userId).exec();
+
     res.status(200).json({ user: { ...foundUser } });
 
   } catch (err) {

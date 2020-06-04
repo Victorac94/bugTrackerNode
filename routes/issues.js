@@ -5,32 +5,43 @@ const { check, validationResult } = require('express-validator');
 
 const Issue = require('../models/issue');
 const Project = require('../models/project');
+const User = require('../models/user');
 const isUserAuthenticated = require('../middlewares/isUserAuthenticated');
 const isUserAuthorized = require('../middlewares/IsUserAuthorized');
 
-/* Get latest issues */
+/* Get latest issues and issues by search */
 // http://localhost:3000/issues?search=<id|summary>
 router.get('/', async (req, res) => {
     try {
         const issue = new Issue();
         let foundIssues;
 
-        // Trim search input and check if it is a valid search
-        req.query.search = req.query.search.trim();
+        // If performing a search of issues
+        if (req.query.search) {
+            console.log('if');
+            // Trim search input and check if it is a valid search
+            req.query.search = req.query.search.trim();
 
-        if (req.query.search === '') {
-            res.status(422).json('Search query is invalid.');
-        }
+            if (req.query.search === '') {
+                res.status(422).json('Search query is invalid.');
+            }
 
-        // If search is a string
-        if (isNaN(req.query.search)) {
-            foundIssues = await issue.searchIssueBySummary(req.query.search);
+            // If search is a string
+            if (isNaN(req.query.search)) {
+                foundIssues = await issue.searchIssueBySummary(req.query.search);
 
-            // If it's the issue custom id (number)
+                // If it's the issue custom id (number)
+            } else {
+                foundIssues = await issue.searchIssueByCustomId(req.query.search);
+            }
+
+
+            // Get all issues
         } else {
-            foundIssues = await issue.searchIssueByCustomId(req.query.search);
+            foundIssues = await issue.getAll();
         }
 
+        // Return foundIssues
         res.status(200).json(foundIssues);
 
     } catch (err) {
@@ -48,7 +59,7 @@ router.post('/new', [
     check('priority', 'Priority value is not valid').isAlpha(),
     check('state', 'State value is not valid').isAlpha(),
     check('severity', 'Severity value is not valid').isAlpha(),
-    check('summary', 'Summary value must be present and can only contain alphabetic and or numeric values').custom(value => /^[a-zA-Z0-9_ ]{3, 30}$/.test(value)),
+    check('summary', 'Summary value must be present and can only contain alphabetic and or numeric values').isLength({ min: 3, max: 30 }),
     check('description', 'Description must not exceed 5000 characters').isLength({ max: 5000 }).exists({ checkNull: true, checkFalsy: true }),
     check('steps_to_reproduce', 'Steps to reproduce must not exceed 2000 characters').isLength({ max: 2000 }),
     check('product_version', 'Product version must not exceed 50 characters').isLength({ max: 50 }),
@@ -64,11 +75,13 @@ router.post('/new', [
 
         const issue = new Issue({ ...req.body });
         const project = new Project();
+        const user = new User();
 
         const newIssue = await issue.save();
         const newProjectIssue = await project.addIssue(req.body.project, newIssue._id);
+        const addedIssueToUser = await user.addIssue(req.body.informer, newIssue._id);
 
-        res.status(200).json({ issue: newIssue, project: newProjectIssue });
+        res.status(200).json({ issue: newIssue, project: newProjectIssue, issue: addedIssueToUser });
 
     } catch (err) {
         res.status(500).json({ error: err });

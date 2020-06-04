@@ -4,6 +4,8 @@ const { check, validationResult } = require('express-validator');
 const moment = require('moment');
 
 const Comment = require('../models/comment');
+const User = require('../models/user');
+const Issue = require('../models/issue');
 const isUserAuthenticated = require('../middlewares/isUserAuthenticated');
 const isUserAuthorized = require('../middlewares/isUserAuthorized');
 
@@ -26,11 +28,16 @@ router.get('/issue/:issueId', async (req, res) => {
 // http://localhost:3000/comments/new
 router.post('/new', isUserAuthenticated, async (req, res) => {
     try {
+        const user = new User();
+        const issue = new Issue();
+
         const comment = new Comment({ ...req.body, author: req.decodedToken.userId });
+        const addedComment = await comment.save();
 
-        const result = await comment.save();
+        const addedCommentToUser = await user.addComment(req.decodedToken.userId, addedComment._id);
+        const addedCommentToIssue = await issue.addComment(req.body.issue, addedComment._id)
 
-        res.status(200).json(result);
+        res.status(200).json({ comment: addedComment, userComment: addedCommentToUser, issueComment: addedCommentToIssue });
 
     } catch (err) {
         res.status(500).json({ error: err });

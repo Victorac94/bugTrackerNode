@@ -19,7 +19,9 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-    }
+    },
+    issues: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Issue' }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }]
 });
 
 // Get all users
@@ -34,12 +36,22 @@ userSchema.methods.getByEmail = function (email) {
 
 // Get user details
 userSchema.methods.getById = function (userId) {
-    return this.model('User').find({ _id: userId }, { password: 0 });
+    return this.model('User').find({ _id: userId }, { password: 0 }).populate('issues comments');
 }
 
 // Update user details
 userSchema.methods.updateDetails = function (id, payload) {
     return this.model('User').updateOne({ _id: id }, { name: payload.name, picture: payload.picture });
+}
+
+// Add issue to user's issues
+userSchema.methods.addIssue = function (userId, issueId) {
+    return this.model('User').updateOne({ _id: userId }, { $push: { issues: issueId } });
+}
+
+// Add comment to user's comments
+userSchema.methods.addComment = function (userId, commentId) {
+    return this.model('User').updateOne({ _id: userId }, { $push: { comments: commentId } });
 }
 
 // Delete user
