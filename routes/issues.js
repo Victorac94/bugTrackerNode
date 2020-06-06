@@ -49,6 +49,23 @@ router.get('/', async (req, res) => {
     }
 })
 
+/* Get issue details */
+// http://localhost:3000/issues/:issueId
+router.get('/:issueId',
+    check('issueId', 'Issue id must be a correct Mongodb id').isMongoId()
+    , async (req, res) => {
+        try {
+            const issue = new Issue();
+
+            const foundIssue = await issue.getFullIssue(req.params['issueId']);
+
+            res.status(200).json({ issue: foundIssue });
+
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    })
+
 /* Add new issue */
 // http://localhost:3000/issues/new
 router.post('/new', [

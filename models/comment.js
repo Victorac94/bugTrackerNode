@@ -5,7 +5,7 @@ const moment = require('moment');
 const commentSchema = new mongoose.Schema({
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     issue: { type: mongoose.Schema.Types.ObjectId, ref: 'Issue' },
-    text: { type: String, minlength: 2, maxlength: 3000 },
+    text: { type: String, minlength: 1, maxlength: 30000 },
     creation_date: { type: Number, default: moment().unix() },
     modification_date: { type: Number, default: null }
 });
