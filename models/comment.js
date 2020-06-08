@@ -22,6 +22,10 @@ commentSchema.methods.getCommentByAuthor = function (authorId) {
     return this.model('Comment').find({ author: authorId }).populate('author issue');
 }
 
+commentSchema.methods.getCreatedComment = function (commentId) {
+    return this.model('Comment').findOne({ _id: commentId }).populate('author issue', '-password');
+}
+
 commentSchema.methods.editComment = function (commentId, data) {
     return this.model('Comment').updateOne({ _id: commentId }, { ...data });
 }

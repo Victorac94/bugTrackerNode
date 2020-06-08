@@ -5,18 +5,18 @@ const AutoIncrement = require('mongoose-sequence')(mongoose);
 const issueSchema = new mongoose.Schema({
     informer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
-    category: { type: String, maxlength: 50 },
+    category: { type: String, minlength: 1, maxlength: 50, required: true },
     creation_date: { type: Number, default: moment().unix() },
     modification_date: { type: Number, default: null },
-    priority: { type: String, default: 'low' },
-    state: { type: String, default: 'open' },
-    severity: { type: String, default: 'low' },
+    priority: { type: String, enum: ['low', 'medium', 'high'], default: 'low' },
+    state: { type: String, enum: ['open', 'closed'], default: 'open' },
+    severity: { type: String, enum: ['low', 'medium', 'high'], default: 'low' },
     summary: { type: String, minlength: 1, maxlength: 200, required: true },
-    description: { type: String, maxlength: 30000, required: true },
-    steps_to_reproduce: { type: String, maxlength: 30000 },
-    product_version: { type: String, maxlength: 100 },
-    os: { type: String, maxlength: 100 },
-    tags: { type: String, maxlength: 30 },
+    description: { type: String, minlength: 1, maxlength: 30000, required: true },
+    steps_to_reproduce: { type: String, minlength: 1, maxlength: 30000 },
+    product_version: { type: String, minlength: 1, maxlength: 50, required: true },
+    os: { type: String, minlength: 1, maxlength: 50 },
+    tags: { type: String, minlength: 1, maxlength: 30, enum: ['feature', 'bug'], default: 'bug' },
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }]
 });
 
@@ -29,7 +29,7 @@ issueSchema.methods.getIssueById = function (issueId) {
 }
 
 issueSchema.methods.getFullIssue = function (issueId) {
-    return this.model('Issue').findById(issueId).populate({ path: 'informer project comments', populate: 'author' });
+    return this.model('Issue').findById(issueId).populate({ path: 'informer project comments', populate: 'author -password' });
 }
 
 issueSchema.methods.getIssueByInformer = function (informerId) {

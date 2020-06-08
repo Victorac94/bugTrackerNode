@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const projectSchema = new mongoose.Schema({
-    name: { type: String, minlength: 2 },
+    name: { type: String, minlength: 1, maxlength: 50 },
     modification_date: { type: Number, default: null },
     creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     issues: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Issue' }]

@@ -31,8 +31,17 @@ router.post('/new', isUserAuthenticated, async (req, res) => {
         const user = new User();
         const issue = new Issue();
 
-        const comment = new Comment({ ...req.body, author: req.decodedToken.userId });
-        const addedComment = await comment.save();
+        const receivedComment = {
+            author: req.decodedToken.userId,
+            issue: req.body.issue,
+            text: req.body.text,
+            creation_date: moment().unix()
+        }
+
+        const comment = new Comment({ ...receivedComment });
+        const savedComment = await comment.save();
+
+        const addedComment = await comment.getCreatedComment(savedComment._id);
 
         const addedCommentToUser = await user.addComment(req.decodedToken.userId, addedComment._id);
         const addedCommentToIssue = await issue.addComment(req.body.issue, addedComment._id)

@@ -68,7 +68,7 @@ router.post('/new', [
       }, process.env.SECRET_KEY);
 
       // Send back user token and user name
-      res.status(200).json({ 'user-token': userToken, user: { name: newUser.name, email: newUser.email, picture: newUser.picture, id: newUser._id } });
+      res.status(200).json({ 'user-token': userToken, 'user-info': { name: newUser.name, email: newUser.email, picture: newUser.picture, id: newUser._id } });
 
     } catch (err) {
       console.log(err);
@@ -114,7 +114,7 @@ router.post('/login', [
           expires: moment().add(1, 'days').unix()
         }, process.env.SECRET_KEY);
 
-        res.status(200).json({ 'user-token': userToken });
+        res.status(200).json({ 'user-token': userToken, 'user-info': { name: foundUser.name, email: foundUser.email, picture: foundUser.picture, id: foundUser._id } });
 
         // If do not match, return error
       } else {
