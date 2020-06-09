@@ -13,7 +13,7 @@ const issueSchema = new mongoose.Schema({
     severity: { type: String, enum: ['low', 'medium', 'high'], default: 'low' },
     summary: { type: String, minlength: 1, maxlength: 200, required: true },
     description: { type: String, minlength: 1, maxlength: 30000, required: true },
-    steps_to_reproduce: { type: String, minlength: 1, maxlength: 30000 },
+    steps_to_reproduce: { type: String, maxlength: 30000 },
     product_version: { type: String, minlength: 1, maxlength: 50, required: true },
     os: { type: String, minlength: 1, maxlength: 50 },
     tags: { type: String, minlength: 1, maxlength: 30, enum: ['feature', 'bug'], default: 'bug' },
@@ -29,7 +29,7 @@ issueSchema.methods.getIssueById = function (issueId) {
 }
 
 issueSchema.methods.getFullIssue = function (issueId) {
-    return this.model('Issue').findById(issueId).populate({ path: 'informer project comments', populate: 'author -password' });
+    return this.model('Issue').findById(issueId).populate({ path: 'informer project comments', populate: { path: 'author -password' } });
 }
 
 issueSchema.methods.getIssueByInformer = function (informerId) {
@@ -46,6 +46,10 @@ issueSchema.methods.searchIssueBySummary = function (summary) {
 
 issueSchema.methods.updateIssue = function (issueId, data) {
     return this.model('Issue').updateOne({ _id: issueId }, { ...data });
+}
+
+issueSchema.methods.deleteIssue = function (issueId) {
+    return this.model('Issue').deleteOne({ _id: issueId });
 }
 
 issueSchema.methods.addComment = function (issueId, commentId) {

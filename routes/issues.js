@@ -76,7 +76,7 @@ router.post('/new', [
     check('severity', 'Severity value is not valid').exists().isAlpha(),
     check('summary', 'Summary value must be present and must be between 1 and 200 characters').exists().isLength({ min: 1, max: 200 }),
     check('description', 'Description must be present and must be between 1 and 30000 characters').exists({ checkNull: true, checkFalsy: true }).isLength({ min: 1, max: 30000 }),
-    check('steps_to_reproduce', 'Steps to reproduce if present must be between 1 and 30000 characters').isLength({ min: 1, max: 30000 }),
+    check('steps_to_reproduce', 'Steps to reproduce if present must be between 1 and 30000 characters').isLength({ max: 30000 }),
     check('product_version', 'Product version must be present and must be between 1 and 50 characters').exists().isLength({ min: 1, max: 50 }),
     check('os', 'OS must be present and must be between 1 and 50 characters').isLength({ min: 1, max: 50 }),
     check('tags', 'Tags must be present and must be between 1 and 30 characters').exists().isLength({ min: 1, max: 30 })
@@ -90,7 +90,7 @@ router.post('/new', [
 
         const myIssue = {
             ...req.body,
-            informer: req.decodedUserToken._id,
+            informer: req.decodedToken.userId,
             state: 'open'
         }
 
@@ -135,7 +135,7 @@ router.put('/:issueId/edit', [
     check('severity', 'Severity value is not valid').exists().isAlpha(),
     check('summary', 'Summary value must be present and must be between 1 and 200 characters').exists().isLength({ min: 1, max: 200 }),
     check('description', 'Description must be present and must be between 1 and 30000 characters').exists({ checkNull: true, checkFalsy: true }).isLength({ min: 1, max: 30000 }),
-    check('steps_to_reproduce', 'Steps to reproduce if present must be between 1 and 30000 characters').isLength({ min: 1, max: 30000 }),
+    check('steps_to_reproduce', 'Steps to reproduce if present must be between 1 and 30000 characters').isLength({ max: 30000 }),
     check('product_version', 'Product version must be present and must be between 1 and 50 characters').exists().isLength({ min: 1, max: 50 }),
     check('os', 'OS must be present and must be between 1 and 50 characters').isLength({ min: 1, max: 50 }),
     check('tags', 'Tags must be present and must be between 1 and 30 characters').exists().isLength({ min: 1, max: 30 })
@@ -157,5 +157,23 @@ router.put('/:issueId/edit', [
         res.status(500).json({ error: err });
     }
 });
+
+// Delete issue
+// http://localhost:3000/issues/:issueId/delete
+router.delete('/:issueId/delete', [
+    isUserAuthenticated,
+    isUserAuthorized
+], async (req, res) => {
+    try {
+        const issue = new Issue();
+
+        const result = await issue.deleteIssue(req.params['issueId']);
+
+        res.status(200).json(result);
+
+    } catch (err) {
+        res.status(500).json({ error: err });
+    }
+})
 
 module.exports = router;
