@@ -16,7 +16,7 @@ projectSchema.methods.getProjectById = function (projectId) {
 }
 
 projectSchema.methods.getProjectIssues = function (projectId) {
-    return this.model('Project').find({ _id: projectId }).populate('issues');
+    return this.model('Project').findById(projectId).populate('issues');
 }
 
 projectSchema.methods.addIssue = function (projectId, issueId) {

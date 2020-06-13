@@ -34,8 +34,8 @@ router.post('/new', [
   }),
   check('email', 'Email format is not correct').custom(value => {
     return /^\w+[\w-\.]*\@\w+((-\w+)|(\w*))\.[a-z]{2,3}$/.test(value);
-  }).exists(),
-  check('password', 'Password must be between 6 and 20 characters').exists().isLength({ min: 6, max: 20 })
+  }),
+  check('password', 'Password must be between 6 and 20 characters').isLength({ min: 6, max: 20 })
 ],
   async (req, res) => {
     try {
@@ -86,8 +86,8 @@ router.post('/new', [
 router.post('/login', [
   check('email', 'Email format is not correct').custom(value => {
     return /^\w+[\w-\.]*\@\w+((-\w+)|(\w*))\.[a-z]{2,3}$/.test(value);
-  }).exists(),
-  check('password', 'Password must be between 6 and 20 characters').exists().isLength({ min: 6, max: 20 })
+  }),
+  check('password', 'Password must be between 6 and 20 characters').isLength({ min: 6, max: 20 })
 ],
   async (req, res) => {
     try {
@@ -101,6 +101,7 @@ router.post('/login', [
 
       // Search user in DB
       const foundUser = await user.getByEmail(req.body.email).exec();
+      console.log(foundUser);
 
       if (!foundUser) {
         return res.status(422).json({ error: 'Email or password is incorrect' });
@@ -127,19 +128,32 @@ router.post('/login', [
     }
   });
 
+/* Check if user's login session is still valid */
+// http://localhost:3000/users/isLoggedIn
+router.get('/isLoggedIn', isUserAuthenticated, async (req, res) => {
+  try {
+    // Get user info
+    const user = new User();
+
+    const userInfo = await user.getById(req.decodedToken.userId);
+
+    res.status(200).json({ userInfo: userInfo, isLoggedIn: true });
+
+  } catch (err) {
+    res.status(500).json(err);
+  }
+})
+
 /* Get user details */
 // http://localhost:3000/users/:userId
 router.get('/:userId', async (req, res) => {
   try {
     const user = new User();
-    // const issue = new Issue();
-    // const comment = new Comment();
 
-    const foundUser = await user.getById(req.params.userId).exec();
-    // const foundIssues = await issue.getIssueById(req.params.userId).exec();
-    // const foundComments = await comment.getCommentByAuthor(req.params.userId).exec();
+    const foundUser = await user.getById(req.params.userId);
+    console.log(foundUser);
 
-    res.status(200).json({ user: { ...foundUser } });
+    res.status(200).json({ user: foundUser });
 
   } catch (err) {
     console.log(err);
@@ -152,10 +166,9 @@ router.get('/:userId', async (req, res) => {
 router.put('/:userId/edit', [
   isUserAuthenticated,
   isUserAuthorized,
-  check('name', 'Name must be between 3 and 30 characters and only contain alphanumeric values or low dash').exists().custom(value => {
-    return /^[a-zA-Z0-9_ ]{3,30}$/.test(value);
-  }),
-  check('password', 'Password must be between 6 and 20 characters').exists().isLength({ min: 6, max: 20 })
+  check('name', 'Name must be between 3 and 30 characters and only contain alphanumeric values or low dash').custom(value => {
+    return /^[a-zA-Z0-9_. ]{3,30}$/.test(value);
+  })
 ], async (req, res) => {
   try {
     const errors = validationResult(req);

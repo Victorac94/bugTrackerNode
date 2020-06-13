@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        match: /^[a-zA-Z0-9_]{3,30}$/
+        match: /^[a-zA-Z0-9_ ]{3,30}$/
     },
     email: {
         type: String,
@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
+        select: false
     },
     issues: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Issue' }],
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }]
@@ -26,17 +27,17 @@ const userSchema = new mongoose.Schema({
 
 // Get all users
 userSchema.methods.getAll = function () {
-    return this.model('User').find({}, { password: 0 });
+    return this.model('User').find({});
 }
 
-// Get user by it's name
+// Get user by it's email
 userSchema.methods.getByEmail = function (email) {
-    return this.model('User').where({ email: email }).findOne();
+    return this.model('User').findOne({ email: email }).select('+password');
 }
 
 // Get user details
 userSchema.methods.getById = function (userId) {
-    return this.model('User').find({ _id: userId }, { password: 0 }).populate('issues comments');
+    return this.model('User').findById(userId).populate({ path: 'issues comments', populate: 'issue' });
 }
 
 // Update user details

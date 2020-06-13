@@ -29,7 +29,7 @@ issueSchema.methods.getIssueById = function (issueId) {
 }
 
 issueSchema.methods.getFullIssue = function (issueId) {
-    return this.model('Issue').findById(issueId).populate({ path: 'informer project comments', populate: { path: 'author -password' } });
+    return this.model('Issue').findById(issueId).populate({ path: 'informer project comments', populate: { path: 'author' } });
 }
 
 issueSchema.methods.getIssueByInformer = function (informerId) {
