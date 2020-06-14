@@ -6,10 +6,9 @@ const bcrypt = require('bcryptjs');
 const { check, validationResult } = require('express-validator');
 
 const User = require('../models/user.js');
-const Issue = require('../models/issue.js');
-const Comment = require('../models/comment.js');
 const isUserAuthenticated = require('../middlewares/isUserAuthenticated');
 const isUserAuthorized = require('../middlewares/IsUserAuthorized');
+const isUserLoggedIn = require('../middlewares/isUserLoggedIn');
 
 /* GET users listing. */
 // http://localhost:3000/users
@@ -67,8 +66,10 @@ router.post('/new', [
         expires: moment().add(1, 'days').unix()
       }, process.env.SECRET_KEY);
 
+      newUser.password = undefined;
+
       // Send back user token and user name
-      res.status(200).json({ 'user-token': userToken, 'user-info': { name: newUser.name, email: newUser.email, picture: newUser.picture, id: newUser._id } });
+      res.status(200).json({ 'user-token': userToken, 'user-info': newUser, isLoggedIn: true });
 
     } catch (err) {
       console.log(err);
@@ -101,7 +102,6 @@ router.post('/login', [
 
       // Search user in DB
       const foundUser = await user.getByEmail(req.body.email).exec();
-      console.log(foundUser);
 
       if (!foundUser) {
         return res.status(422).json({ error: 'Email or password is incorrect' });
@@ -115,7 +115,9 @@ router.post('/login', [
           expires: moment().add(1, 'days').unix()
         }, process.env.SECRET_KEY);
 
-        res.status(200).json({ 'user-token': userToken, 'user-info': { name: foundUser.name, email: foundUser.email, picture: foundUser.picture, id: foundUser._id } });
+        foundUser.password = undefined;
+
+        res.status(200).json({ 'user-token': userToken, 'user-info': foundUser, isLoggedIn: true });
 
         // If do not match, return error
       } else {
@@ -128,16 +130,18 @@ router.post('/login', [
     }
   });
 
-/* Check if user's login session is still valid */
+/* Return if user's login session is still valid and it's profile info */
 // http://localhost:3000/users/isLoggedIn
-router.get('/isLoggedIn', isUserAuthenticated, async (req, res) => {
+router.get('/isLoggedIn', isUserLoggedIn, async (req, res) => {
   try {
     // Get user info
     const user = new User();
 
+    console.log(req.decodedToken.userId);
+
     const userInfo = await user.getById(req.decodedToken.userId);
 
-    res.status(200).json({ userInfo: userInfo, isLoggedIn: true });
+    res.status(200).json({ userInfo: userInfo, isLoggedIn: req.isLoggedIn });
 
   } catch (err) {
     res.status(500).json(err);

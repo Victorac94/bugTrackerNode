@@ -37,7 +37,7 @@ userSchema.methods.getByEmail = function (email) {
 
 // Get user details
 userSchema.methods.getById = function (userId) {
-    return this.model('User').findById(userId).populate({ path: 'issues comments', populate: 'issue' });
+    return this.model('User').findById(userId).populate({ path: 'issues comments', populate: { path: 'issue' } });
 }
 
 // Update user details
@@ -60,5 +60,14 @@ userSchema.methods.deleteById = function (id) {
     return this.model('User').deleteOne({ _id: id });
 }
 
+// Delete user comment
+userSchema.methods.deleteComment = function (userId, commentId) {
+    return this.model('User').updateOne({ _id: userId }, { $pull: { comments: commentId } });
+}
+
+// Delete user issue
+userSchema.methods.deleteIssue = function (userId, issueId) {
+    return this.model('User').updateOne({ _id: userId }, { $push: { issues: issueId } });
+}
 
 module.exports = mongoose.model('User', userSchema);

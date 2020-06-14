@@ -8,6 +8,7 @@ const Project = require('../models/project');
 const User = require('../models/user');
 const isUserAuthenticated = require('../middlewares/isUserAuthenticated');
 const isUserAuthorized = require('../middlewares/IsUserAuthorized');
+const isUserLoggedIn = require('../middlewares/isUserLoggedIn');
 
 /* Get latest issues and issues by search */
 // http://localhost:3000/issues?search=<id|summary>
@@ -51,20 +52,21 @@ router.get('/', async (req, res) => {
 
 /* Get issue details */
 // http://localhost:3000/issues/:issueId
-router.get('/:issueId',
+router.get('/:issueId', [
+    // isUserLoggedIn,
     check('issueId', 'Issue id must be a correct Mongodb id').isMongoId()
-    , async (req, res) => {
-        try {
-            const issue = new Issue();
+], async (req, res) => {
+    try {
+        const issue = new Issue();
 
-            const foundIssue = await issue.getFullIssue(req.params['issueId']);
+        const foundIssue = await issue.getFullIssue(req.params['issueId']);
 
-            res.status(200).json({ issue: foundIssue });
+        res.status(200).json({ issue: foundIssue, isLoggedIn: req.isLoggedIn });
 
-        } catch (err) {
-            res.status(500).json(err);
-        }
-    })
+    } catch (err) {
+        res.status(500).json(err);
+    }
+})
 
 /* Add new issue */
 // http://localhost:3000/issues/new
@@ -78,7 +80,6 @@ router.post('/new', [
     check('description', 'Description must be present and must be between 1 and 30000 characters').exists({ checkNull: true, checkFalsy: true }).isLength({ min: 1, max: 30000 }),
     check('steps_to_reproduce', 'Steps to reproduce if present must be between 1 and 30000 characters').isLength({ max: 30000 }),
     check('product_version', 'Product version must be present and must be between 1 and 50 characters').exists().isLength({ min: 1, max: 50 }),
-    check('os', 'OS must be present and must be between 1 and 50 characters').isLength({ min: 1, max: 50 }),
     check('tags', 'Tags must be present and must be between 1 and 30 characters').exists().isLength({ min: 1, max: 30 })
 ], async (req, res) => {
     try {
@@ -137,7 +138,6 @@ router.put('/:issueId/edit', [
     check('description', 'Description must be present and must be between 1 and 30000 characters').exists({ checkNull: true, checkFalsy: true }).isLength({ min: 1, max: 30000 }),
     check('steps_to_reproduce', 'Steps to reproduce if present must be between 1 and 30000 characters').isLength({ max: 30000 }),
     check('product_version', 'Product version must be present and must be between 1 and 50 characters').exists().isLength({ min: 1, max: 50 }),
-    check('os', 'OS must be present and must be between 1 and 50 characters').isLength({ min: 1, max: 50 }),
     check('tags', 'Tags must be present and must be between 1 and 30 characters').exists().isLength({ min: 1, max: 30 })
 ], async (req, res) => {
     try {
@@ -166,10 +166,14 @@ router.delete('/:issueId/delete', [
 ], async (req, res) => {
     try {
         const issue = new Issue();
+        const user = new User();
+        const comment = new Comment();
 
-        const result = await issue.deleteIssue(req.params['issueId']);
+        const resultDeleteIssue = await issue.deleteIssue(req.params['issueId']);
+        const resultDeleteUserIssue = await user.deleteIssue(req.decodedToken.userId, req.params['issueId']);
+        const resultDeleteComments = await comment.deleteIssueComments(req.params['issueId']);
 
-        res.status(200).json(result);
+        res.status(200).json({ issue: resultDeleteIssue, user: resultDeleteUserIssue, comment: resultDeleteComments });
 
     } catch (err) {
         res.status(500).json({ error: err });

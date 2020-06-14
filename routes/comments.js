@@ -87,10 +87,14 @@ router.delete('/:commentId/delete', [
 ], async (req, res) => {
     try {
         const comment = new Comment();
+        const user = new User();
+        const issue = new Issue();
 
-        const result = await comment.deleteComment(req.params['commentId']);
+        const resultComment = await comment.deleteComment(req.params['commentId']);
+        const resultUser = await user.deleteComment(req.decodedToken.userId, req.params['commentId']);
+        const resultIssue = await issue.deleteComment(req.headers['issue-id'], req.params['commentId']);
 
-        res.status(200).json(result);
+        res.status(200).json({ comment: resultComment, user: resultUser, issue: resultIssue });
 
     } catch (err) {
         res.status(500).json({ error: err });
