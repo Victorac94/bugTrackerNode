@@ -60,6 +60,11 @@ issueSchema.methods.deleteIssue = function (issueId) {
     return this.model('Issue').deleteOne({ _id: issueId });
 }
 
+// Close issue (state = closed)
+issueSchema.methods.closeIssue = function (issueId, state) {
+    return this.model('Issue').updateOne({ _id: issueId }, { $set: { state: state } });
+}
+
 // Add comment to issue
 issueSchema.methods.addComment = function (issueId, commentId) {
     return this.model('Issue').updateOne({ _id: issueId }, { $push: { comments: commentId } });

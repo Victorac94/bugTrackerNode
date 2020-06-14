@@ -180,4 +180,26 @@ router.delete('/:issueId/delete', [
     }
 })
 
+/* Close issue */
+// http://localhost:3000/issues/:issueId/close
+router.patch('/:issueId/close', [
+    isUserAuthenticated,
+    isUserAuthorized
+], async (req, res) => {
+    try {
+        const issue = new Issue();
+
+        console.log(req.params['issueId']);
+        console.log(req.body.state);
+
+        const closedIssue = await issue.closeIssue(req.params['issueId'], req.body.state);
+
+        res.status(200).json(closedIssue);
+
+    } catch (err) {
+        res.status(500).json({ error: err });
+    }
+})
+
+
 module.exports = router;
