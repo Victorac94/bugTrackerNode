@@ -180,21 +180,18 @@ router.delete('/:issueId/delete', [
     }
 })
 
-/* Close issue */
-// http://localhost:3000/issues/:issueId/close
-router.patch('/:issueId/close', [
+/* Toggle issue state (open/closed) */
+// http://localhost:3000/issues/:issueId/toggle-state
+router.patch('/:issueId/toggle-state', [
     isUserAuthenticated,
     isUserAuthorized
 ], async (req, res) => {
     try {
         const issue = new Issue();
 
-        console.log(req.params['issueId']);
-        console.log(req.body.state);
+        const toggledIssue = await issue.toggleIssueState(req.params['issueId'], req.body.state);
 
-        const closedIssue = await issue.closeIssue(req.params['issueId'], req.body.state);
-
-        res.status(200).json(closedIssue);
+        res.status(200).json(toggledIssue);
 
     } catch (err) {
         res.status(500).json({ error: err });
