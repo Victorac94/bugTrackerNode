@@ -2,7 +2,7 @@ const Issue = require('../models/issue');
 const Project = require('../models/project');
 const Comment = require('../models/comment');
 
-async function isUserAuthorized(req, res, next) {
+const isUserAuthorized = async (req, res, next) => {
     try {
         // For modifying issues
         if (req.params['issueId']) {

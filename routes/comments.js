@@ -7,7 +7,7 @@ const Comment = require('../models/comment');
 const User = require('../models/user');
 const Issue = require('../models/issue');
 const isUserAuthenticated = require('../middlewares/isUserAuthenticated');
-const isUserAuthorized = require('../middlewares/isUserAuthorized');
+const isUserAuthorized = require('../middlewares/IsUserAuthorized');
 
 /* Get issue's comments */
 // http://localhost:3000/comments/issue/:issueId
