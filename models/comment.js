@@ -12,7 +12,7 @@ const commentSchema = new mongoose.Schema({
 
 // Get all comments
 commentSchema.methods.getAll = function (issueId) {
-    return this.model('Comment').find({ issue: issueId }).populate('author');
+    return this.model('Comment').find({ issue: issueId }).sort({ creation_date: 1 }).populate('author');
 }
 
 // Get comment by it's mongodb id
