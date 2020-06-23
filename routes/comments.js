@@ -11,7 +11,7 @@ const isUserAuthorized = require('../middlewares/IsUserAuthorized');
 
 /* Get issue's comments */
 // http://localhost:3000/comments/issue/:issueId
-router.get('/issue/:issueId', async (req, res) => {
+/* router.get('/issue/:issueId', async (req, res) => {
     try {
         const comment = new Comment();
 
@@ -22,7 +22,7 @@ router.get('/issue/:issueId', async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err });
     }
-});
+}); */
 
 /* Add new comment */
 // http://localhost:3000/comments/new

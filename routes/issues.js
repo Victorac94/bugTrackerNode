@@ -12,14 +12,14 @@ const isUserLoggedIn = require('../middlewares/isUserLoggedIn');
 
 /* Get latest issues and issues by search */
 // http://localhost:3000/issues?search=<id|summary>
-router.get('/', async (req, res) => {
+router.get('/', isUserLoggedIn, async (req, res) => {
     try {
         const issue = new Issue();
         let foundIssues;
 
         // If performing a search of issues
         if (req.query.search) {
-            console.log('if');
+            /* console.log('if');
             // Trim search input and check if it is a valid search
             req.query.search = req.query.search.trim();
 
@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
             } else {
                 foundIssues = await issue.searchIssueByCustomId(req.query.search);
             }
-
+            */
 
             // Get all issues
         } else {
@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
         }
 
         // Return foundIssues
-        res.status(200).json(foundIssues);
+        res.status(200).json({ issues: foundIssues, isLoggedIn: req.isLoggedIn });
 
     } catch (err) {
         res.status(500).json({ error: err });
@@ -53,7 +53,7 @@ router.get('/', async (req, res) => {
 /* Get issue details */
 // http://localhost:3000/issues/:issueId
 router.get('/:issueId', [
-    // isUserLoggedIn,
+    isUserLoggedIn,
     check('issueId', 'Issue id must be a correct Mongodb id').isMongoId()
 ], async (req, res) => {
     try {
@@ -112,13 +112,13 @@ router.post('/new', [
 
 /* Get specific project's issues */
 // http:localhost:3000/issues/project/:projectId
-router.get('/project/:projectId', async (req, res) => {
+router.get('/project/:projectId', isUserLoggedIn, async (req, res) => {
     try {
         const project = new Project();
 
         const projectIssues = await project.getProjectIssues(req.params['projectId']);
 
-        res.status(200).json(projectIssues);
+        res.status(200).json({ projectIssues: projectIssues, isLoggedIn: req.isLoggedIn });
 
     } catch (err) {
         res.status(500).json({ error: err });

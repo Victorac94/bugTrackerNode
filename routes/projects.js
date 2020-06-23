@@ -6,16 +6,17 @@ const { check, validationResult } = require('express-validator');
 const Project = require('../models/project');
 const isUserAuthenticated = require('../middlewares/isUserAuthenticated');
 const isUserAuthorized = require('../middlewares/IsUserAuthorized');
+const isUserLoggedIn = require('../middlewares/isUserLoggedIn');
 
 /* Get all projects */
 // http:localhost:3000/projects
-router.get('/', async (req, res) => {
+router.get('/', isUserLoggedIn, async (req, res) => {
     try {
         const project = new Project();
 
         const allProjects = await project.getAll();
 
-        res.status(200).json(allProjects);
+        res.status(200).json({ projects: allProjects, isLoggedIn: req.isLoggedIn });
 
     } catch (err) {
         res.status(500).json({ error: err });

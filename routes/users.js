@@ -12,7 +12,7 @@ const isUserLoggedIn = require('../middlewares/isUserLoggedIn');
 
 /* GET users listing. */
 // http://localhost:3000/users
-router.get('/', async (req, res) => {
+/* router.get('/', async (req, res) => {
   try {
     const user = new User();
 
@@ -23,7 +23,7 @@ router.get('/', async (req, res) => {
     console.log(err);
     res.status(500).json({ error: err });
   }
-});
+}); */
 
 /* Handle user registration */
 // http://localhost:3000/users/new
@@ -150,14 +150,14 @@ router.get('/isLoggedIn', isUserLoggedIn, async (req, res) => {
 
 /* Get user details */
 // http://localhost:3000/users/:userId
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', isUserLoggedIn, async (req, res) => {
   try {
     const user = new User();
 
     const foundUser = await user.getById(req.params.userId);
     console.log(foundUser);
 
-    res.status(200).json({ user: foundUser });
+    res.status(200).json({ user: foundUser, isLoggedIn: req.isLoggedIn });
 
   } catch (err) {
     console.log(err);
