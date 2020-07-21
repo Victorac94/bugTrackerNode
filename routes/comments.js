@@ -20,7 +20,7 @@ const isUserAuthorized = require('../middlewares/IsUserAuthorized');
         res.status(200).json(issueComments);
 
     } catch (err) {
-        res.status(500).json({ error: err });
+        res.status(500).json(err);
     }
 }); */
 
@@ -49,7 +49,7 @@ router.post('/new', isUserAuthenticated, async (req, res) => {
         res.status(200).json({ comment: addedComment, userComment: addedCommentToUser, issueComment: addedCommentToIssue });
 
     } catch (err) {
-        res.status(500).json({ error: err });
+        res.status(500).json(err);
     }
 });
 
@@ -75,7 +75,7 @@ router.put('/:commentId/edit', [
         res.status(200).json(result);
 
     } catch (err) {
-        res.status(500).json({ error: err });
+        res.status(500).json(err);
     }
 });
 
@@ -97,7 +97,7 @@ router.delete('/:commentId/delete', [
         res.status(200).json({ comment: resultComment, user: resultUser, issue: resultIssue });
 
     } catch (err) {
-        res.status(500).json({ error: err });
+        res.status(500).json(err);
     }
 });
 

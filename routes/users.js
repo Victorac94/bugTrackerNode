@@ -21,7 +21,7 @@ const isUserLoggedIn = require('../middlewares/isUserLoggedIn');
 
   } catch (err) {
     console.log(err);
-    res.status(500).json({ error: err });
+    res.status(500).json(err);
   }
 }); */
 
@@ -50,7 +50,7 @@ router.post('/new', [
       const isUserAlreadyRegistered = await checkUser.getByEmail(req.body.email);
 
       if (isUserAlreadyRegistered) {
-        return res.status(422).json({ error: 'That email is already registered.' });
+        return res.status(422).json('That email is already registered.');
       }
 
       // Hash password
@@ -75,7 +75,7 @@ router.post('/new', [
       console.log(err);
 
       if (err.code === 11000) {
-        res.status(500).json({ error: 'Name already exists.' });
+        res.status(500).json('Name already exists.');
       } else {
         res.status(500).json(err);
       }
@@ -104,7 +104,7 @@ router.post('/login', [
       const foundUser = await user.getByEmail(req.body.email).exec();
 
       if (!foundUser) {
-        return res.status(422).json({ error: 'Email or password is incorrect' });
+        return res.status(422).json('Email or password is incorrect');
       }
 
       // If password and hashed password match, create user token with expiry date
@@ -126,7 +126,7 @@ router.post('/login', [
 
     } catch (err) {
       console.log(err);
-      res.status(500).json({ error: err });
+      res.status(500).json(err);
     }
   });
 
@@ -161,7 +161,7 @@ router.get('/:userId', isUserLoggedIn, async (req, res) => {
 
   } catch (err) {
     console.log(err);
-    res.status(500).json({ error: err });
+    res.status(500).json(err);
   }
 });
 
@@ -188,7 +188,7 @@ router.put('/:userId/edit', [
 
   } catch (err) {
     console.log(err);
-    res.status(500).json({ error: err });
+    res.status(500).json(err);
   }
 });
 
@@ -202,7 +202,7 @@ router.delete('/:userId/delete', [isUserAuthenticated, isUserAuthorized], async 
     res.status(200).json(result);
 
   } catch (err) {
-    res.status(500).json({ error: err });
+    res.status(500).json(err);
   }
 });
 

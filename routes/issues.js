@@ -46,7 +46,7 @@ router.get('/', isUserLoggedIn, async (req, res) => {
         res.status(200).json({ issues: foundIssues, isLoggedIn: req.isLoggedIn });
 
     } catch (err) {
-        res.status(500).json({ error: err });
+        res.status(500).json(err);
     }
 })
 
@@ -106,7 +106,7 @@ router.post('/new', [
         res.status(200).json({ issue: newIssue, project: newProjectIssue, issue: addedIssueToUser });
 
     } catch (err) {
-        res.status(500).json({ error: err });
+        res.status(500).json(err);
     }
 })
 
@@ -121,7 +121,7 @@ router.get('/project/:projectId', isUserLoggedIn, async (req, res) => {
         res.status(200).json({ projectIssues: projectIssues, isLoggedIn: req.isLoggedIn });
 
     } catch (err) {
-        res.status(500).json({ error: err });
+        res.status(500).json(err);
     }
 });
 
@@ -154,7 +154,7 @@ router.put('/:issueId/edit', [
         res.status(200).json(result);
 
     } catch (err) {
-        res.status(500).json({ error: err });
+        res.status(500).json(err);
     }
 });
 
@@ -176,7 +176,7 @@ router.delete('/:issueId/delete', [
         res.status(200).json({ issue: resultDeleteIssue, user: resultDeleteUserIssue, comment: resultDeleteComments });
 
     } catch (err) {
-        res.status(500).json({ error: err });
+        res.status(500).json(err);
     }
 })
 
@@ -194,7 +194,7 @@ router.patch('/:issueId/toggle-state', [
         res.status(200).json(toggledIssue);
 
     } catch (err) {
-        res.status(500).json({ error: err });
+        res.status(500).json(err);
     }
 })
 

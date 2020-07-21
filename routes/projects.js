@@ -19,7 +19,7 @@ router.get('/', isUserLoggedIn, async (req, res) => {
         res.status(200).json({ projects: allProjects, isLoggedIn: req.isLoggedIn });
 
     } catch (err) {
-        res.status(500).json({ error: err });
+        res.status(500).json(err);
     }
 });
 
@@ -46,7 +46,7 @@ router.post('/new', [
             res.status(200).json(newProject);
 
         } catch (err) {
-            res.status(500).json({ error: err });
+            res.status(500).json(err);
         }
     });
 
@@ -78,7 +78,7 @@ router.put('/:projectId/edit', [
             res.status(200).json(result);
 
         } catch (err) {
-            res.status(500).json({ error: err });
+            res.status(500).json(err);
         }
     });
 
@@ -96,7 +96,7 @@ router.delete('/:projectId/delete', [
         res.status(200).json(result);
 
     } catch (err) {
-        res.status(500).json({ error: err });
+        res.status(500).json(err);
     }
 });
 

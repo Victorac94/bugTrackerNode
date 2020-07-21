@@ -57,7 +57,7 @@ const isUserAuthorized = async (req, res, next) => {
             // User can modify comment
             if (foundComment.author.toString() === req.decodedToken.userId) {
                 console.log('Can update comment');
-                next()
+                next();
 
                 // User is not authorized to modify comment
             } else {
@@ -66,7 +66,7 @@ const isUserAuthorized = async (req, res, next) => {
         }
 
     } catch (err) {
-        res.status(500).json({ error: err });
+        res.status(500).json(err);
     }
 }
 
