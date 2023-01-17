@@ -67,7 +67,7 @@ userSchema.methods.deleteComment = function (userId, commentId) {
 
 // Delete user issue
 userSchema.methods.deleteIssue = function (userId, issueId) {
-    return this.model('User').updateOne({ _id: userId }, { $push: { issues: issueId } });
+    return this.model('User').updateOne({ _id: userId }, { $pull: { issues: issueId } });
 }
 
 module.exports = mongoose.model('User', userSchema);
