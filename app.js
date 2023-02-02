@@ -14,7 +14,7 @@ var commentsRouter = require('./routes/comments');
 var app = express();
 
 const corsOptions = {
-  origin: 'https://bugtracker-1b38f.web.app/',
+  origin: 'https://bugtracker-1b38f.web.app',
   status: 200
 };
 
