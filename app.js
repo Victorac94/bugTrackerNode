@@ -13,11 +13,6 @@ var commentsRouter = require('./routes/comments');
 
 var app = express();
 
-const corsOptions = {
-  origin: 'https://bugtracker-1b38f.web.app/',
-  status: 200
-};
-
 require('dotenv').config();
 
 // Connect to the DB
@@ -27,7 +22,7 @@ require('./db');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
